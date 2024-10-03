@@ -43,19 +43,24 @@ SELECT
 FROM
 	date_total;
 
-/*
-SELECT 
-    COUNT(*) AS total_sub,                       
-    AVG("Tittarnas ålder") AS average_age,                
-    MIN("Tittarnas ålder") AS min_age,                
-    MAX("Tittarnas ålder") AS max_age                       
-FROM 
-    tittare.tabelldata_kon;
-*/
-   
-   
-   
-SELECT * FROM tittare.tabelldata_kon tk --visar tittarnas ålder och statistik kring ålder.
+SELECT * FROM tittare.tabelldata_alder ta; --info om tittarnas kön
 
-SELECT * FROM tittare.tabelldata_alder ta --visar vilka tittare som är intresserade i kanalen.
+SELECT * FROM tittare.tabelldata_kon tk; --info om tittarnas ålder
+
+
+SELECT Videotitel, Visningar 
+FROM innehall.tabelldata t
+ORDER BY Visningar DESC; -- Visar videos med mest visningar.
+
+SELECT Videotitel, Visningar 
+FROM innehall.tabelldata
+WHERE Visningar > 50 -- visar videos med över 50 views.
+ORDER BY Visningar DESC;
+
+
+SELECT 
+    COUNT(*) AS total_rows, -- visar antal null och o-null
+    COUNT(Videotitel) AS non_null_titles,        
+    COUNT(Visningar) AS non_null_views          
+FROM innehall.tabelldata;
 
