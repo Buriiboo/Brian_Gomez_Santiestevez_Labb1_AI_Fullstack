@@ -23,23 +23,35 @@ class ContentKPI:
         st.dataframe(df)
 
 # create more KPIs here
-class DeviceKPI:
+
+class ViewsKPI:
     def __init__(self) -> None:
-        # Query for device types and their views
-        self._device_views = QueryDatabase("""
-            SELECT enhetstyp, COUNT(*) AS total_views
-            FROM device_data
-            GROUP BY enhetstyp
-            ORDER BY total_views DESC;
-        """).df
+        available_tables = QueryDatabase("SELECT table_name FROM information_schema.tables WHERE table_schema = 'marts';").df
+        print("Available tables in 'marts':", available_tables)
 
-    def display_device_data(self):
-        # Display the device views data
-        st.markdown("## KPIer för Enhetstyper")
-        st.markdown("Nedan visas antalet visningar för varje enhetstyp.")
+        if 'content_view_time' in available_tables['table_name'].values:
+            self._views = QueryDatabase("SELECT * FROM marts.content_view_time;").df
+        else:
+            st.error("The table 'marts.content_view_time' does not exist! Please check your schema or create the table.")
+            self._views = None
 
-        # Display the data frame
-        st.dataframe(self._device_views)
+    def display_content(self):
+        if self._views is not None:
+            st.markdown("## KPIer för Videor")
+            st.markdown("Nedan visas KPIer för totalt antal visningar och visningstid.")
+            
+            # Display KPI metrics
+            kpis = {
+                "videor": len(self._views),
+                "visade timmar": self._views["Visningstid_timmar"].sum(),
+                "prenumeranter": self._views["Prenumeranter"].sum(),
+                "exponeringar": self._views["Exponeringar"].sum(),
+            }
 
-        # Show bar chart for device views
-        st.bar_chart(self._device_views.set_index('enhetstyp')['total_views'])
+            for col, kpi in zip(st.columns(len(kpis)), kpis):
+                with col:
+                    st.metric(kpi, round(kpis[kpi]))
+
+            st.dataframe(self._views)
+        else:
+            st.warning("No data available to display for 'marts.content_view_time'.")
