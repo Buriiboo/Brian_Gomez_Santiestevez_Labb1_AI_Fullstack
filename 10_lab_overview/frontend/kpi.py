@@ -24,4 +24,22 @@ class ContentKPI:
 
 # create more KPIs here
 class DeviceKPI:
-    pass 
+    def __init__(self) -> None:
+        # Query for device types and their views
+        self._device_views = QueryDatabase("""
+            SELECT enhetstyp, COUNT(*) AS total_views
+            FROM device_data
+            GROUP BY enhetstyp
+            ORDER BY total_views DESC;
+        """).df
+
+    def display_device_data(self):
+        # Display the device views data
+        st.markdown("## KPIer för Enhetstyper")
+        st.markdown("Nedan visas antalet visningar för varje enhetstyp.")
+
+        # Display the data frame
+        st.dataframe(self._device_views)
+
+        # Show bar chart for device views
+        st.bar_chart(self._device_views.set_index('enhetstyp')['total_views'])
